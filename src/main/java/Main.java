@@ -8,7 +8,7 @@ import org.apache.ignite.IgniteDataStreamer;
 
 public class Main {
 
-	private static int maxThread = 1;
+	private static int maxThread = 3;
 	
 	public static void main( String[] args ) throws IOException, InterruptedException
     {
@@ -17,17 +17,17 @@ public class Main {
 		IgniteDataStreamer<Long, LNSData> stmr2 = Configuration.getInstance().igniteInstance().dataStreamer("LNSDataCache3");
 		
 		stmr.autoFlushFrequency(2000);
-		//stmr2.autoFlushFrequency(5000);
+		stmr2.autoFlushFrequency(2000);
 		
 		Thread t = null;
 		for(int nbThread = 0;nbThread<maxThread; nbThread++) {
 			InsertThread it = new InsertThread(stmr);
 			
 	    	t = new Thread(it, "it-"+nbThread);
-	    	it.run();
+	    	t.start();
 		}
 		
-		/*
+		//*
 		Thread t2 = null;
 		for(int nbThread = 0;nbThread<maxThread; nbThread++) {
 			InsertThread it = new InsertThread(stmr2);
@@ -67,10 +67,10 @@ public class Main {
 				        dataToSave.put(lnsData.getId(), lnsData);
 				        //stmr.addData(lnsData.getId(), lnsData);
 				    }
-				    Thread.sleep(2000);
+				    //Thread.sleep(2000);
 				    System.out.println("add-"+i);
 				    stmr.addData(dataToSave);
-				    stmr.flush();
+				    //stmr.flush();
 				    System.out.println(i);
 				}catch(Exception e) {
 					System.err.println(e);
