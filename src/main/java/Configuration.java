@@ -58,7 +58,6 @@ public class Configuration {
 		
 		DataRegionConfiguration lnsDrc = new DataRegionConfiguration();
 		lnsDrc.setName("lnscache");
-		// lnsDrc.setMaxSize(1L * 5 * 1024 * 1024);
 		lnsDrc.setPersistenceEnabled(true);
 
 		DataStorageConfiguration dsCfg = new DataStorageConfiguration();
@@ -67,17 +66,26 @@ public class Configuration {
 		cfg.setDataStorageConfiguration(dsCfg);
 
 		/*********************************************************************************/
+        /********************************** CACHE **********************************/
+        /*******************************************************************************/        
+        CacheConfiguration<Long, LNSData2> ccfg2 = new CacheConfiguration<Long, LNSData2>("LNSDataCache2");        
+        ccfg2.setDataRegionName("lnscache");
+        ccfg2.setIndexedTypes(Long.class, LNSData2.class);
+        ccfg2.setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(new Duration(TimeUnit.DAYS, 1)));
+        ccfg2.setEagerTtl(true);
+		
+		/*********************************************************************************/
         /********************************** PERSISTENT **********************************/
         /*******************************************************************************/        
         CacheConfiguration<Long, LNSData> ccfg = new CacheConfiguration<Long, LNSData>("LNSDataCache3");        
         ccfg.setDataRegionName("persistent");
         ccfg.setIndexedTypes(Long.class, LNSData.class);
-        ccfg.setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(new Duration(TimeUnit.DAYS, 360)));
+        ccfg.setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(new Duration(TimeUnit.DAYS, 1)));
         ccfg.setEagerTtl(true);  
         
         /***************************************************************************/
 		
-		cfg.setCacheConfiguration(ccfg);
+		cfg.setCacheConfiguration(ccfg, ccfg2);
 		cfg.setConsistentId("data-node");
 
 		cfg.setDiscoverySpi(getTcpDiscoverySpi());
@@ -96,7 +104,7 @@ public class Configuration {
 		TcpDiscoverySpi discoverySpi = new TcpDiscoverySpi();
 
 		// Initial local port to listen to.
-		discoverySpi.setLocalPort(48501);
+		discoverySpi.setLocalPort(48500);
 
 		// Changing local port range. This is an optional action.
 		discoverySpi.setLocalPortRange(20);
@@ -121,7 +129,7 @@ public class Configuration {
 		// the nodes from the first cluster.
 		TcpCommunicationSpi commSpi = new TcpCommunicationSpi();
 		// commSpi.setMessageQueueLimit(50000);
-		commSpi.setLocalPort(48101);
+		commSpi.setLocalPort(48100);
 
 		return commSpi;
 	}
